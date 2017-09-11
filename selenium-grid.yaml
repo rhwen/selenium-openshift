@@ -1,0 +1,203 @@
+apiVersion: v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: selenium-grid
+objects:
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: hub
+    name: hub
+  spec:
+    replicas: 1
+    selector:
+      app: hub
+      deploymentconfig: hub
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: hub
+          deploymentconfig: hub
+      spec:
+        containers:
+        - image: selenium/hub:3.5.3-astatine
+          imagePullPolicy: IfNotPresent
+          name: hub
+          ports:
+          - containerPort: 4444
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - type: ConfigChange
+  status:
+    availableReplicas: 0
+    latestVersion: 0
+    observedGeneration: 0
+    replicas: 0
+    unavailableReplicas: 0
+    updatedReplicas: 0
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: node-chrome
+    name: node-chrome
+  spec:
+    replicas: 1
+    selector:
+      app: node-chrome
+      deploymentconfig: node-chrome
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: node-chrome
+          deploymentconfig: node-chrome
+      spec:
+        containers:
+        - env:
+          - name: HUB_PORT_4444_TCP_ADDR
+            value: hub
+          - name: HUB_PORT_4444_TCP_PORT
+            value: "4444"
+          image: selenium/node-chrome:3.5.3-astatine
+          imagePullPolicy: IfNotPresent
+          name: node-chrome
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - type: ConfigChange
+  status:
+    availableReplicas: 0
+    latestVersion: 0
+    observedGeneration: 0
+    replicas: 0
+    unavailableReplicas: 0
+    updatedReplicas: 0
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: node-firefox
+    name: node-firefox
+  spec:
+    replicas: 1
+    selector:
+      app: node-firefox
+      deploymentconfig: node-firefox
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: node-firefox
+          deploymentconfig: node-firefox
+      spec:
+        containers:
+        - env:
+          - name: HUB_PORT_4444_TCP_ADDR
+            value: hub
+          - name: HUB_PORT_4444_TCP_PORT
+            value: "4444"
+          image: selenium/node-firefox:3.5.3-astatine
+          imagePullPolicy: IfNotPresent
+          name: node-firefox
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - type: ConfigChange
+  status:
+    availableReplicas: 0
+    latestVersion: 0
+    observedGeneration: 0
+    replicas: 0
+    unavailableReplicas: 0
+    updatedReplicas: 0
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: hub
+    name: hub
+  spec:
+    ports:
+    - name: 4444-tcp
+      port: 4444
+      protocol: TCP
+      targetPort: 4444
+    selector:
+      app: hub
+      deploymentconfig: hub
+    sessionAffinity: None
+    type: NodePort
+  status:
+    loadBalancer: {}
